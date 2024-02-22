@@ -1,19 +1,39 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
-import './todo.css';
+import { Avatar, Badge, Box, Checkbox, IndexFilters, IndexTable, InlineGrid, PageActions, ResourceItem, Text } from '@shopify/polaris';
 
-const Todo = ({ todo, index, completeTodo, removeTodo }) => {
+const Todo = (item) => {
+    const {id, text, isCompleted, completeTodo, removeTodo } = item;
+
     return (
-        <div
-            className="todo"
-            style={{ textDecoration: todo.isCompleted ? "line-through" : "" }}
+        <ResourceItem
+            id={id}
+            isCompleted={isCompleted}
         >
-            {todo.text}
-            <div>
-                <button onClick={() => completeTodo(index)}>Complete</button>
-                <button onClick={() => removeTodo(index)}>x</button>
-            </div>
-        </div>
+            <InlineGrid columns={3} alignItems='center'>
+                <Text variant="bodyMd" as="h3">
+                {text}
+                </Text>
+                <Box>
+                    <Badge tone={isCompleted ? "success" : "attention"}>
+                        {isCompleted ? "Complete" : "Incomplete"}
+                    </Badge>
+                </Box>
+                    <PageActions
+                        primaryAction={{
+                            content: 'Complete',
+                            onAction: () => completeTodo(id)
+                        }}
+                        secondaryActions={[
+                            {
+                                content: 'Delete',
+                                destructive: true,
+                                onAction: () => removeTodo(id)
+                            },
+                        ]}
+                    />
+            </InlineGrid>
+        </ResourceItem>
     );
 };
 
