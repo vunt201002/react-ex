@@ -1,38 +1,31 @@
-import React, { useState } from "react";
-import { AppProvider, Badge, Button, Card, Page, BlockStack, InlineGrid, Text, Box, Checkbox } from "@shopify/polaris"
+import React, { useRef, useState } from "react";
+import { AppProvider, Page } from "@shopify/polaris"
 
 import TodoList from "./components/todoList/TodoList.js";
 import "./index.css";
 import Header from "./components/header/Header.jsx";
-import TodoForm from "./components/todoForm/TodoForm.js";
-
+import CreateButton from "./components/createButton/CreateButton.js";
 
 function App() {
-    const [isShowModal, setIsShowModal] = useState(false);
+  const button = useRef(null);
+  const [isShowModal, setIsShowModal] = useState(false);
 
-    return (
-        <AppProvider>
-            <div className="app">
-                <Header />
-                <Page
-                    narrowWidth
-                    title="Todoes"
-                    secondaryActions={
-                        <Button
-                        variant="primary"
-                            onClick={() => setIsShowModal(true)}
-                            >
-                            Create
-                        </Button>
-                    }
-                    >
-                    <TodoList isShowModal={isShowModal} setIsShowModal={setIsShowModal}/>
-                </Page>
-            </div>
-            <div className={isShowModal ? "overlay show" : 'hide'}>
-            </div>
-        </AppProvider>
-    );
+  return (
+    <AppProvider>
+      <div className="app">
+        <Header />
+        <Page
+          narrowWidth
+          title="Todoes"
+          secondaryActions={
+            <CreateButton setIsShowModal={setIsShowModal} refs={button}/>
+          }
+        >
+          <TodoList refButton={button} isShowModal={isShowModal} setIsShowModal={setIsShowModal} />
+        </Page>
+      </div>
+    </AppProvider>
+  );
 }
 
 export default App;

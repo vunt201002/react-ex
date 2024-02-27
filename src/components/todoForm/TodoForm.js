@@ -1,70 +1,66 @@
-import React, { useContext } from 'react';
-
+import React, { useCallback } from 'react';
 import "./todoForm.css";
-import { Button, Card, FormLayout, Page, TextField, Badge, Divider, PageActions } from '@shopify/polaris';
+import { TextField, Modal } from '@shopify/polaris';
 
-const TodoForm = ({ addTodo, isShowModal = false, setIsShowModal }) => {
-    const [value, setValue] = React.useState("");
+const TodoForm = ({ addTodo, isShowModal = false, setIsShowModal, refButton }) => {
+  const [value, setValue] = React.useState("");
 
-    const handleChange = newValue => {
-        setValue(newValue);
-    }
+  const handleChangeTextField = newValue => {
+    setValue(newValue);
+  }
 
-    const handleSubmit = e => {
-        e.preventDefault();
-        if (!value) return;
-        addTodo(value);
-        setValue("");
-    };
+  const handleSubmit = e => {
+    e.preventDefault();
+    if (!value) return;
+    addTodo(value);
+    setValue("");
+    setIsShowModal(false);
+  };
 
-    return (
-        <form className={isShowModal ? "show modal" : "hide"}>
+  const handleOpen = useCallback(() => setIsShowModal(true), []);
 
-        <div style={{
-            display: 'flex',
-            justifyContent: "space-between",
-            alignItems: 'center',
-            backgroundColor: "#e3e3e3",
-            padding: '12px 24px',
-            paddingTop: '12px',
-            borderTopLeftRadius: '24px',
-            borderTopRightRadius: '24px'
-        }}>
-            <p style={{
-                fontSize: '20px',
-                fontWeight: 'bold'
-            }}>Create todo</p>
-            <Button onClick={() => setIsShowModal(false)} variant='tertiary'>X</Button>
-        </div>
-        <Divider />
-        <div
-            style={{
-                padding: '16px 24px',
-                paddingTop: '12px'
-            }}
-        >
-            <TextField
-                value={value}
-                onChange={handleChange}
-                label="Title"
-                type="text"
-                autoComplete="off"
-            />
-        </div>
-        <Divider borderColor="border" />
-        <div style={{
-            padding: '0 24px'
-        }}>
-            <PageActions
-                primaryAction={{
-                    content: 'Add',
-                    onAction: handleSubmit
-                }}
-                secondaryActions={<Button onClick={() => setIsShowModal(false)}>Cancel</Button>}
-            />
-        </div>
-        </form>
+  const handleClose = useCallback(() => {
+    setIsShowModal(false);
+    requestAnimationFrame(() =>
+      refButton.current?.querySelector('button')?.focus(),
     );
+  }, []);
+
+  
+
+  return (
+    <div>
+      <Modal
+        instant
+        open={isShowModal}
+        onClose={handleClose}
+        title="Create todo"
+        primaryAction={{
+          content: 'Add',
+          onAction: () => {
+            addTodo(value);
+            handleClose();
+          },
+        }}
+        secondaryActions={[
+          {
+            content: 'Cancel',
+            onAction: handleClose,
+          },
+        ]}
+      >
+        <Modal.Section>
+          <TextField
+            value={value}
+            onChange={handleChangeTextField}
+            label="Title"
+            type="text"
+            autoComplete="off"
+          />
+        </Modal.Section>
+      </Modal>
+    </div>
+  );
 };
 
 export default TodoForm;
