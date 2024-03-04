@@ -1,112 +1,104 @@
-import React, { useEffect, useState } from 'react';
-import Todo from "../todo/Todo.js";
-import TodoForm from "../todoForm/TodoForm.js";
-import { baseUrl } from "../api/apiUrl.js";
+import React, { useState } from 'react';
+import Todo from "../Todo/Todo.js";
+import TodoForm from "../TodoForm/TodoForm.js";
+import { baseUrl } from "../../api/apiUrl.js";
 import useFetchApi from "../../hooks/useFetchApi.js";
-import { Card, Page, ResourceList } from '@shopify/polaris';
+import { Card, ResourceList } from '@shopify/polaris';
 import TodoContext from '../../context/TodoContext.js';
+import { fetchApi } from '../../api/fetchApi.js';
 
 const TodoList = ({ isShowModal, setIsShowModal, refButton }) => {
-  const { data } = useFetchApi(`${baseUrl}/products`);
-  const [todos, setTodos] = useState(data.data || []);
+  const { data } = useFetchApi();
   const [selectedItems, setSelectedItems] = useState([]);
-
-  useEffect(() => {
-    setTodos(prev => data.data || []);
-  }, [data]);
+  const headersApi = {
+    "Content-Type": "application/json",
+  };
 
   const addTodo = async text => {
     try {
-      const response = await fetch(`${baseUrl}/products`, {
+      const res = await fetchApi({
+        url: `${baseUrl}/products`,
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ text }),
+        body: text
       });
-      const res = await response.json();
       console.log(res);
     } catch (err) {
       console.log("Error when add todo");
+      console.log(err);
+    } finally {
+      console.log("Success");
     }
   };
 
   const completeTodo = async id => {
     try {
-      const todo = todos.find(t => t.id === id);
-
-      if (todo) {
-        todo.isCompleted = true;
-      }
-
-      const response = await fetch(`${baseUrl}/product/${id}`, {
+      const res = await fetchApi({
+        url: `${baseUrl}/product/${id}`,
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(todo),
       });
-      const res = await response.json();
+
+      console.log(id);
+
       console.log(res);
     } catch (err) {
       console.log("Error when update todo");
+    } finally {
+      console.log("Success");
     }
   };
 
   const completeTodos = async () => {
     try {
-      let updatedTodos = todos.filter(todo => selectedItems.includes(todo.id));
+      let updatedTodos = data.filter(todo => selectedItems.includes(todo.id));
 
-      updatedTodos = updatedTodos.map(e => ({
-        ...e,
-        isCompleted: true
-      }));
+      updatedTodos = updatedTodos.map(e => e.id);
 
-      const response = await fetch(`${baseUrl}/products`, {
+      const res = await fetchApi({
+        url: `${baseUrl}/products`,
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedTodos),
+        body: updatedTodos
       });
-      const res = await response.json();
+
       setSelectedItems([]);
+
       console.log(res);
     } catch (err) {
       console.log("Error when update todoes");
+    } finally {
+      console.log("Success");
     }
   };
 
   const removeTodo = async id => {
     try {
-      const response = await fetch(`${baseUrl}/product/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        }
-      });
-      const res = await response.json();
+      const res = await fetchApi({
+        url: `${baseUrl}/product/${id}`,
+        method: "DELETE"
+      })
+
       console.log(res);
     } catch (err) {
       console.log("Error when delete todo");
+    } finally {
+      console.log("Success");
     }
   };
 
   const removeTodos = async () => {
     try {
-      console.log(selectedItems);
-      const response = await fetch(`${baseUrl}/products/d`, {
+      const res = await fetchApi({
+        url: `${baseUrl}/products/d`,
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ ids: selectedItems })
-      });
-      const res = await response.json();
+        body: selectedItems
+      })
+      
       setSelectedItems([]);
+
       console.log(res);
     } catch (err) {
       console.log("Error when delete todoes");
+    } finally {
+      console.log("Success");
     }
   };
   
@@ -128,20 +120,18 @@ const TodoList = ({ isShowModal, setIsShowModal, refButton }) => {
 
   return (
     <TodoContext.Provider value={{ removeTodo, completeTodo }}>
-      <Page fullWidth>
-        <Card>
-          <ResourceList
-            resourceName={resourceName}
-            items={todos}
-            renderItem={Todo}
-            selectedItems={selectedItems}
-            onSelectionChange={setSelectedItems}
-            promotedBulkActions={promotedBulkActions}
-            totalItemsCount={todos.length}
-          />
-        </Card>
-        <TodoForm refButton={refButton} addTodo={addTodo} isShowModal={isShowModal} setIsShowModal={setIsShowModal} />
-      </Page>
+      <Card>
+        <ResourceList
+          resourceName={resourceName}
+          items={data}
+          renderItem={Todo}
+          selectedItems={selectedItems}
+          onSelectionChange={setSelectedItems}
+          promotedBulkActions={promotedBulkActions}
+          totalItemsCount={data.length}
+        />
+      </Card>
+      <TodoForm refButton={refButton} addTodo={addTodo} isShowModal={isShowModal} setIsShowModal={setIsShowModal} />
     </TodoContext.Provider>
   );
 };

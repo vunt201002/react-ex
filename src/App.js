@@ -1,10 +1,10 @@
 import React, { useRef, useState } from "react";
 import { AppProvider, Page } from "@shopify/polaris"
 
-import TodoList from "./components/todoList/TodoList.js";
+import TodoList from "./components/TodoList/TodoList.js";
 import "./index.css";
-import Header from "./components/header/Header.jsx";
-import CreateButton from "./components/createButton/CreateButton.js";
+import Header from "./components/Header/Header.jsx";
+import CreateButton from "./components/CreateButton/CreateButton.js";
 
 function App() {
   const button = useRef(null);
